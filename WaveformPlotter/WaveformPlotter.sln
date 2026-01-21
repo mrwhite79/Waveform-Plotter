@@ -1,0 +1,29 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 12.00
+# Visual Studio Version 17
+VisualStudioVersion = 17.14.36109.1
+MinimumVisualStudioVersion = 10.0.40219.1
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "WaveformPlotter", "WaveformPlotter.csproj", "{1C3ADA19-5297-7673-7D90-AB868AB7F8DB}"
+EndProject
+Project("{54435603-DBB4-11D2-8724-00A0C9A8B90C}") = "WaveformPlotterInstaller", "..\WaveformPlotterInstaller\WaveformPlotterInstaller.vdproj", "{7A17F8ED-D40D-B03C-8A44-0248A60F7475}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Any CPU = Debug|Any CPU
+		Release|Any CPU = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{1C3ADA19-5297-7673-7D90-AB868AB7F8DB}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{1C3ADA19-5297-7673-7D90-AB868AB7F8DB}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{1C3ADA19-5297-7673-7D90-AB868AB7F8DB}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{1C3ADA19-5297-7673-7D90-AB868AB7F8DB}.Release|Any CPU.Build.0 = Release|Any CPU
+		{7A17F8ED-D40D-B03C-8A44-0248A60F7475}.Debug|Any CPU.ActiveCfg = Debug
+		{7A17F8ED-D40D-B03C-8A44-0248A60F7475}.Release|Any CPU.ActiveCfg = Release
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(ExtensibilityGlobals) = postSolution
+		SolutionGuid = {D27DC536-7D31-4B6A-9A2F-1C8AFD5CABDE}
+	EndGlobalSection
+EndGlobal

@@ -1,0 +1,4 @@
+C:\Mac\Home\Documents\GitHub\MultiChannelCsvViewer\V5 - Copy\WaveformPlotter\WaveformPlotter\publish\WaveformPlotter.pdb
+C:\Mac\Home\Documents\GitHub\MultiChannelCsvViewer\V5 - Copy\WaveformPlotter\WaveformPlotter\publish\libHarfBuzzSharp.dll
+C:\Mac\Home\Documents\GitHub\MultiChannelCsvViewer\V5 - Copy\WaveformPlotter\WaveformPlotter\publish\libSkiaSharp.dll
+C:\Mac\Home\Documents\GitHub\MultiChannelCsvViewer\V5 - Copy\WaveformPlotter\WaveformPlotter\publish\WaveformPlotter.exe

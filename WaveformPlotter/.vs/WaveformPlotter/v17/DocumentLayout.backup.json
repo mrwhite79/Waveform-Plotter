@@ -1,0 +1,36 @@
+{
+  "Version": 1,
+  "WorkspaceRootPath": "C:\\Mac\\Home\\Documents\\GitHub\\MultiChannelCsvViewer\\V5 - Copy\\WaveformPlotter\\",
+  "Documents": [
+    {
+      "AbsoluteMoniker": "D:0:0:{1C3ADA19-5297-7673-7D90-AB868AB7F8DB}|WaveformPlotter.csproj|c:\\mac\\home\\documents\\github\\multichannelcsvviewer\\v5 - copy\\waveformplotter\\waveformplotter.csproj||{04B8AB82-A572-4FEF-95CE-5222444B6B64}|",
+      "RelativeMoniker": "D:0:0:{1C3ADA19-5297-7673-7D90-AB868AB7F8DB}|WaveformPlotter.csproj|solutionrelative:waveformplotter.csproj||{04B8AB82-A572-4FEF-95CE-5222444B6B64}|"
+    }
+  ],
+  "DocumentGroupContainers": [
+    {
+      "Orientation": 0,
+      "VerticalTabListWidth": 256,
+      "DocumentGroups": [
+        {
+          "DockedWidth": 200,
+          "SelectedChildIndex": 0,
+          "Children": [
+            {
+              "$type": "Document",
+              "DocumentIndex": 0,
+              "Title": "WaveformPlotter",
+              "DocumentMoniker": "C:\\Mac\\Home\\Documents\\GitHub\\MultiChannelCsvViewer\\V5 - Copy\\WaveformPlotter\\WaveformPlotter.csproj",
+              "RelativeDocumentMoniker": "WaveformPlotter.csproj",
+              "ToolTip": "C:\\Mac\\Home\\Documents\\GitHub\\MultiChannelCsvViewer\\V5 - Copy\\WaveformPlotter\\WaveformPlotter.csproj",
+              "RelativeToolTip": "WaveformPlotter.csproj",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000758|",
+              "WhenOpened": "2025-12-10T17:20:37.182Z",
+              "EditorCaption": ""
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}
