@@ -1,10 +1,10 @@
 {
   "Version": 1,
-  "WorkspaceRootPath": "C:\\Mac\\Home\\Documents\\GitHub\\MultiChannelCsvViewer\\V5 - Copy\\WaveformPlotter\\",
+  "WorkspaceRootPath": "C:\\Mac\\Home\\Documents\\GitHub\\Waveform Plotter\\WaveformPlotterProject\\Waveform Plotter\\WaveformPlotter\\",
   "Documents": [
     {
-      "AbsoluteMoniker": "D:0:0:{1C3ADA19-5297-7673-7D90-AB868AB7F8DB}|WaveformPlotter.csproj|c:\\mac\\home\\documents\\github\\multichannelcsvviewer\\v5 - copy\\waveformplotter\\waveformplotter.csproj||{04B8AB82-A572-4FEF-95CE-5222444B6B64}|",
-      "RelativeMoniker": "D:0:0:{1C3ADA19-5297-7673-7D90-AB868AB7F8DB}|WaveformPlotter.csproj|solutionrelative:waveformplotter.csproj||{04B8AB82-A572-4FEF-95CE-5222444B6B64}|"
+      "AbsoluteMoniker": "D:0:0:{1C3ADA19-5297-7673-7D90-AB868AB7F8DB}|WaveformPlotter.csproj|c:\\mac\\home\\documents\\github\\waveform plotter\\waveformplotterproject\\waveform plotter\\waveformplotter\\mainform.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{1C3ADA19-5297-7673-7D90-AB868AB7F8DB}|WaveformPlotter.csproj|solutionrelative:mainform.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
     }
   ],
   "DocumentGroupContainers": [
@@ -19,13 +19,14 @@
             {
               "$type": "Document",
               "DocumentIndex": 0,
-              "Title": "WaveformPlotter",
-              "DocumentMoniker": "C:\\Mac\\Home\\Documents\\GitHub\\MultiChannelCsvViewer\\V5 - Copy\\WaveformPlotter\\WaveformPlotter.csproj",
-              "RelativeDocumentMoniker": "WaveformPlotter.csproj",
-              "ToolTip": "C:\\Mac\\Home\\Documents\\GitHub\\MultiChannelCsvViewer\\V5 - Copy\\WaveformPlotter\\WaveformPlotter.csproj",
-              "RelativeToolTip": "WaveformPlotter.csproj",
-              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000758|",
-              "WhenOpened": "2025-12-10T17:20:37.182Z",
+              "Title": "MainForm.cs",
+              "DocumentMoniker": "C:\\Mac\\Home\\Documents\\GitHub\\Waveform Plotter\\WaveformPlotterProject\\Waveform Plotter\\WaveformPlotter\\MainForm.cs",
+              "RelativeDocumentMoniker": "MainForm.cs",
+              "ToolTip": "C:\\Mac\\Home\\Documents\\GitHub\\Waveform Plotter\\WaveformPlotterProject\\Waveform Plotter\\WaveformPlotter\\MainForm.cs",
+              "RelativeToolTip": "MainForm.cs",
+              "ViewState": "AgIAADECAAAAAAAAAAAQwEECAAAAAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2026-01-21T15:51:03.704Z",
               "EditorCaption": ""
             }
           ]

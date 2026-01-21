@@ -1,8 +1,8 @@
 {
   "version": 2,
-  "dgSpecHash": "Tbkq3GTNBe0=",
+  "dgSpecHash": "OOklYiVYO/0=",
   "success": true,
-  "projectFilePath": "C:\\Mac\\Home\\Documents\\GitHub\\MultiChannelCsvViewer\\V5 - Copy\\WaveformPlotter\\WaveformPlotter.csproj",
+  "projectFilePath": "C:\\Mac\\Home\\Documents\\GitHub\\Waveform Plotter\\WaveformPlotterProject\\Waveform Plotter\\WaveformPlotter\\WaveformPlotter.csproj",
   "expectedPackageFiles": [
     "C:\\Users\\matthewwhite\\.nuget\\packages\\harfbuzzsharp\\8.3.1.1\\harfbuzzsharp.8.3.1.1.nupkg.sha512",
     "C:\\Users\\matthewwhite\\.nuget\\packages\\harfbuzzsharp.nativeassets.linux\\8.3.1.1\\harfbuzzsharp.nativeassets.linux.8.3.1.1.nupkg.sha512",

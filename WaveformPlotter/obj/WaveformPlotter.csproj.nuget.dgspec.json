@@ -1,17 +1,17 @@
 {
   "format": 1,
   "restore": {
-    "C:\\Mac\\Home\\Documents\\GitHub\\MultiChannelCsvViewer\\V5 - Copy\\WaveformPlotter\\WaveformPlotter.csproj": {}
+    "C:\\Mac\\Home\\Documents\\GitHub\\Waveform Plotter\\WaveformPlotterProject\\Waveform Plotter\\WaveformPlotter\\WaveformPlotter.csproj": {}
   },
   "projects": {
-    "C:\\Mac\\Home\\Documents\\GitHub\\MultiChannelCsvViewer\\V5 - Copy\\WaveformPlotter\\WaveformPlotter.csproj": {
+    "C:\\Mac\\Home\\Documents\\GitHub\\Waveform Plotter\\WaveformPlotterProject\\Waveform Plotter\\WaveformPlotter\\WaveformPlotter.csproj": {
       "version": "1.0.0",
       "restore": {
-        "projectUniqueName": "C:\\Mac\\Home\\Documents\\GitHub\\MultiChannelCsvViewer\\V5 - Copy\\WaveformPlotter\\WaveformPlotter.csproj",
+        "projectUniqueName": "C:\\Mac\\Home\\Documents\\GitHub\\Waveform Plotter\\WaveformPlotterProject\\Waveform Plotter\\WaveformPlotter\\WaveformPlotter.csproj",
         "projectName": "WaveformPlotter",
-        "projectPath": "C:\\Mac\\Home\\Documents\\GitHub\\MultiChannelCsvViewer\\V5 - Copy\\WaveformPlotter\\WaveformPlotter.csproj",
+        "projectPath": "C:\\Mac\\Home\\Documents\\GitHub\\Waveform Plotter\\WaveformPlotterProject\\Waveform Plotter\\WaveformPlotter\\WaveformPlotter.csproj",
         "packagesPath": "C:\\Users\\matthewwhite\\.nuget\\packages\\",
-        "outputPath": "C:\\Mac\\Home\\Documents\\GitHub\\MultiChannelCsvViewer\\V5 - Copy\\WaveformPlotter\\obj\\",
+        "outputPath": "C:\\Mac\\Home\\Documents\\GitHub\\Waveform Plotter\\WaveformPlotterProject\\Waveform Plotter\\WaveformPlotter\\obj\\",
         "projectStyle": "PackageReference",
         "fallbackFolders": [
           "C:\\Program Files (x86)\\Microsoft Visual Studio\\Shared\\NuGetPackages"

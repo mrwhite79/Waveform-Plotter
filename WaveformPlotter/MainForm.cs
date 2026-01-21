@@ -1,14 +1,14 @@
-
 using ScottPlot;
 using ScottPlot.WinForms;
 using System;
+using System.Collections.Generic;
 using System.ComponentModel;
 using System.Globalization;
 using System.IO;
 using System.Linq;
 using System.Text.Json;
+using System.Text.Json.Serialization;
 using System.Windows.Forms;
-using System.IO;
 
 namespace WaveformPlotter
 {
@@ -68,52 +68,35 @@ namespace WaveformPlotter
 
         public MainForm()
         {
-            Text = "Multi-Channel CSV A2D Viewer";
             Width = 1400;
             Height = 900;
 
             var ver = System.Reflection.Assembly.GetExecutingAssembly().GetName().Version;
-            this.Text = $"WaveformPlotter  v{ver}";
+            Text = $"WaveformPlotter  v{ver}";
 
-            using (var ms = new MemoryStream(Properties.Resources.AppIcon))
+            // If you have a Resources-resx byte[] icon called AppIcon, this works.
+            // If not, remove this block.
+            try
             {
-                this.Icon = new Icon(ms);
+                using var ms = new MemoryStream(Properties.Resources.AppIcon);
+                this.Icon = new System.Drawing.Icon(ms);
+            }
+            catch
+            {
+                // ignore icon load failures
             }
 
             InitializeUi();
             LoadConfigIfExists();
         }
 
-        private void SyncX(FormsPlot src, FormsPlot dst)
-        {
-            double xmin = src.Plot.Axes.Bottom.Min;
-            double xmax = src.Plot.Axes.Bottom.Max;
-
-            var destAxis = dst.Plot.Axes.Bottom;
-
-            if (Math.Abs(destAxis.Min - xmin) > 1e-9 ||
-                Math.Abs(destAxis.Max - xmax) > 1e-9)
-            {
-                destAxis.Min = xmin;
-                destAxis.Max = xmax;
-                dst.Refresh();
-            }
-        }
         private void InitializeUi()
         {
             // --- Plot controls ---
-            _formsPlotTop = new FormsPlot
-            {
-                Dock = DockStyle.Fill
-            };
+            _formsPlotTop = new FormsPlot { Dock = DockStyle.Fill };
+            _formsPlotBottom = new FormsPlot { Dock = DockStyle.Fill };
 
-            _formsPlotBottom = new FormsPlot
-            {
-                Dock = DockStyle.Fill
-            };
-
-            // default ScottPlot interactions already give pan/zoom with mouse wheel and click-drag
-            // add crosshairs that track the mouse on each chart
+            // crosshairs that track the mouse on each chart
             var crosshairTop = _formsPlotTop.Plot.Add.Crosshair(0, 0);
             var crosshairBottom = _formsPlotBottom.Plot.Add.Crosshair(0, 0);
 
@@ -133,7 +116,7 @@ namespace WaveformPlotter
                 _formsPlotBottom.Refresh();
             };
 
-            // autoscale on double-click (per chart)
+            // autoscale on double-click (per chart) + copy X
             _formsPlotTop.MouseDoubleClick += (s, e) =>
             {
                 if (e.Button == MouseButtons.Left)
@@ -155,7 +138,6 @@ namespace WaveformPlotter
                     _formsPlotBottom.Refresh();
                 }
             };
-
 
             // --- Channel grid ---
             _dgvChannels = new DataGridView
@@ -206,52 +188,25 @@ namespace WaveformPlotter
             _dgvChannels.DataSource = _channels;
 
             // DGV stability: swallow data errors and commit checkbox edits immediately
-            _dgvChannels.DataError += (s, e) =>
-            {
-                e.ThrowException = false;
-            };
-
+            _dgvChannels.DataError += (s, e) => e.ThrowException = false;
             _dgvChannels.CurrentCellDirtyStateChanged += (s, e) =>
             {
                 if (_dgvChannels.IsCurrentCellDirty)
                     _dgvChannels.CommitEdit(DataGridViewDataErrorContexts.Commit);
             };
-
             _dgvChannels.CellValueChanged += DgvChannels_CellValueChanged;
 
             // --- Top control panel ---
-            var topPanel = new Panel
-            {
-                Dock = DockStyle.Top,
-                Height = 80
-            };
+            var topPanel = new Panel { Dock = DockStyle.Top, Height = 80 };
 
-            _btnLoadCsv = new Button
-            {
-                Text = "Load CSVs",
-                Left = 10,
-                Top = 10,
-                Width = 100
-            };
+            _btnLoadCsv = new Button { Text = "Load CSVs", Left = 10, Top = 10, Width = 100 };
             _btnLoadCsv.Click += BtnLoadCsv_Click;
 
-            _btnPlot = new Button
-            {
-                Text = "Plot",
-                Left = 120,
-                Top = 10,
-                Width = 80
-            };
+            _btnPlot = new Button { Text = "Plot", Left = 120, Top = 10, Width = 80 };
             _btnPlot.Click += (s, e) => PlotFromUi();
 
-            _btnSaveConfig = new Button
-            {
-                Text = "Save Config",
-                Left = 210,
-                Top = 10,
-                Width = 100
-            };
-            _btnSaveConfig.Click += BtnSaveConfig_Click;
+            _btnSaveConfig = new Button { Text = "Save Config", Left = 210, Top = 10, Width = 100 };
+            _btnSaveConfig.Click += (s, e) => SaveCurrentConfig();
 
             _lblSampleInterval = new System.Windows.Forms.Label
             {
@@ -269,46 +224,14 @@ namespace WaveformPlotter
                 Text = DEFAULT_SAMPLE_INTERVAL_SEC.ToString("G6", CultureInfo.InvariantCulture)
             };
 
-            // Row and overlay controls
-            _rbSingleRow = new RadioButton
-            {
-                Text = "Single Row",
-                Left = 520,
-                Top = 10,
-                Checked = true
-            };
+            _rbSingleRow = new RadioButton { Text = "Single Row", Left = 520, Top = 10, Checked = true };
+            _rbMultiRow = new RadioButton { Text = "Overlay Rows", Left = 520, Top = 35 };
 
-            _rbMultiRow = new RadioButton
-            {
-                Text = "Overlay Rows",
-                Left = 520,
-                Top = 35
-            };
+            _lblRow = new System.Windows.Forms.Label { Text = "Row:", Left = 620, Top = 14, AutoSize = true };
 
-            _lblRow = new System.Windows.Forms.Label
-            {
-                Text = "Row:",
-                Left = 620,
-                Top = 14,
-                AutoSize = true
-            };
+            _nudRow = new NumericUpDown { Left = 660, Top = 10, Width = 80, Minimum = 0, Maximum = 0 };
 
-            _nudRow = new NumericUpDown
-            {
-                Left = 660,
-                Top = 10,
-                Width = 80,
-                Minimum = 0,
-                Maximum = 0
-            };
-
-            _lblOverlays = new System.Windows.Forms.Label
-            {
-                Text = "# overlays:",
-                Left = 750,
-                Top = 14,
-                AutoSize = true
-            };
+            _lblOverlays = new System.Windows.Forms.Label { Text = "# overlays:", Left = 750, Top = 14, AutoSize = true };
 
             _nudOverlayCount = new NumericUpDown
             {
@@ -320,23 +243,10 @@ namespace WaveformPlotter
                 Value = 5
             };
 
-            // Prev / Next buttons for navigation
-            _btnPrev = new Button
-            {
-                Text = "<",
-                Left = 900,
-                Top = 8,
-                Width = 40
-            };
+            _btnPrev = new Button { Text = "<", Left = 900, Top = 8, Width = 40 };
             _btnPrev.Click += (s, e) => StepRows(-1);
 
-            _btnNext = new Button
-            {
-                Text = ">",
-                Left = 945,
-                Top = 8,
-                Width = 40
-            };
+            _btnNext = new Button { Text = ">", Left = 945, Top = 8, Width = 40 };
             _btnNext.Click += (s, e) => StepRows(+1);
 
             topPanel.Controls.AddRange(new Control[]
@@ -349,7 +259,7 @@ namespace WaveformPlotter
                 _btnPrev, _btnNext
             });
 
-            // --- Charts stacked vertically with shared X-axis behavior ---
+            // --- Charts stacked vertically ---
             var chartsLayout = new TableLayoutPanel
             {
                 Dock = DockStyle.Fill,
@@ -359,45 +269,20 @@ namespace WaveformPlotter
             chartsLayout.RowStyles.Add(new RowStyle(SizeType.Percent, 50));
             chartsLayout.RowStyles.Add(new RowStyle(SizeType.Percent, 50));
             chartsLayout.ColumnStyles.Add(new ColumnStyle(SizeType.Percent, 100));
-
             chartsLayout.Controls.Add(_formsPlotTop, 0, 0);
             chartsLayout.Controls.Add(_formsPlotBottom, 0, 1);
 
-            var rightPanel = new Panel
-            {
-                Dock = DockStyle.Fill
-            };
+            var rightPanel = new Panel { Dock = DockStyle.Fill };
             rightPanel.Controls.Add(chartsLayout);
             rightPanel.Controls.Add(topPanel);
 
             Controls.Add(rightPanel);
             Controls.Add(_dgvChannels);
-
-
         }
 
         // =========================
-        // X-axis synchronization
+        // DGV event handler
         // =========================
-
-        private void CopyXAxis(FormsPlot src, FormsPlot dst)
-        {
-            var srcBottom = src.Plot.Axes.Bottom;
-            var dstBottom = dst.Plot.Axes.Bottom;
-
-            if (Math.Abs(srcBottom.Min - dstBottom.Min) < 1e-9 &&
-                Math.Abs(srcBottom.Max - dstBottom.Max) < 1e-9)
-                return;
-
-            dstBottom.Min = srcBottom.Min;
-            dstBottom.Max = srcBottom.Max;
-            dst.Refresh();
-        }
-
-        // =========================
-        // DGV event handler: keep ChannelData in sync and stable
-        // =========================
-
         private void DgvChannels_CellValueChanged(object? sender, DataGridViewCellEventArgs e)
         {
             if (e.RowIndex < 0 || e.RowIndex >= _channels.Count)
@@ -434,7 +319,6 @@ namespace WaveformPlotter
         // =========================
         // Row navigation
         // =========================
-
         private void StepRows(int direction)
         {
             if (_numRows == 0)
@@ -454,9 +338,8 @@ namespace WaveformPlotter
         }
 
         // =========================
-        // Top-level plotting based on UI state
+        // Plotting based on UI state
         // =========================
-
         private void PlotFromUi()
         {
             if (_channels.Count == 0 || _numRows == 0 || _numSamplesPerRow == 0)
@@ -482,14 +365,9 @@ namespace WaveformPlotter
             int baseRow = (int)_nudRow.Value;
 
             if (_rbSingleRow.Checked)
-            {
                 PlotSingleRow(baseRow);
-            }
             else
-            {
-                int overlays = (int)_nudOverlayCount.Value;
-                PlotRowOverlay(baseRow, overlays);
-            }
+                PlotRowOverlay(baseRow, (int)_nudOverlayCount.Value);
 
             _formsPlotTop.Plot.Axes.AutoScale();
             CopyXAxis(_formsPlotTop, _formsPlotBottom);
@@ -501,7 +379,6 @@ namespace WaveformPlotter
         // =========================
         // Event handlers
         // =========================
-
         private void BtnLoadCsv_Click(object? sender, EventArgs e)
         {
             using var ofd = new OpenFileDialog
@@ -521,6 +398,9 @@ namespace WaveformPlotter
             _numRows = 0;
             _numSamplesPerRow = 0;
 
+            // Build a fast lookup of config keys for partial-match scoring
+            var cfgKeys = _config.FileMap.Keys.ToList();
+
             int channelIndex = 0;
             foreach (string filePath in ofd.FileNames)
             {
@@ -531,7 +411,7 @@ namespace WaveformPlotter
                     break;
                 }
 
-                var ch = LoadChannelFromCsv(filePath, channelIndex);
+                var ch = LoadChannelFromCsv(filePath, channelIndex, cfgKeys);
                 _channels.Add(ch);
                 channelIndex++;
             }
@@ -539,7 +419,6 @@ namespace WaveformPlotter
             if (_channels.Count == 0)
                 return;
 
-            // Make sure all channels have same shape
             _numRows = _channels[0].Data.GetLength(0);
             _numSamplesPerRow = _channels[0].Data.GetLength(1);
 
@@ -553,24 +432,13 @@ namespace WaveformPlotter
                     "Warning", MessageBoxButtons.OK, MessageBoxIcon.Warning);
             }
 
-            // Update numeric ranges
             if (_numRows > 0)
-            {
                 _nudRow.Maximum = _numRows - 1;
-            }
-
-            // First plot will auto-scale when user hits Plot
-        }
-
-        private void BtnSaveConfig_Click(object? sender, EventArgs e)
-        {
-            SaveCurrentConfig();
         }
 
         // =========================
         // Plotting helpers
         // =========================
-
         private void PlotSingleRow(int rowIndex)
         {
             if (rowIndex < 0 || rowIndex >= _numRows)
@@ -585,9 +453,9 @@ namespace WaveformPlotter
 
             var palette = new ScottPlot.Palettes.Category10();
 
-            foreach (var ch in _channels)
+            for (int chIndex = 0; chIndex < _channels.Count; chIndex++)
             {
-                int chIndex = _channels.IndexOf(ch);
+                var ch = _channels[chIndex];
                 ScottPlot.Color color = palette.GetColor(chIndex);
 
                 double[] y = new double[N];
@@ -644,9 +512,9 @@ namespace WaveformPlotter
 
                 double frac = (overlayCount == 1) ? 0.0 : (double)offset / (overlayCount - 1);
 
-                foreach (var ch in _channels)
+                for (int chIndex = 0; chIndex < _channels.Count; chIndex++)
                 {
-                    int chIndex = _channels.IndexOf(ch);
+                    var ch = _channels[chIndex];
                     ScottPlot.Color baseColor = palette.GetColor(chIndex);
                     ScottPlot.Color overlayColor = baseColor.Darken(0.5 * frac);
 
@@ -684,14 +552,12 @@ namespace WaveformPlotter
         }
 
         // =========================
-        // CSV loading
+        // CSV loading + config match
         // =========================
-
-        private ChannelData LoadChannelFromCsv(string filePath, int channelIndex)
+        private ChannelData LoadChannelFromCsv(string filePath, int channelIndex, List<string> cfgKeys)
         {
             var lines = File.ReadAllLines(filePath);
 
-            // Skip completely empty lines
             var nonEmpty = lines.Where(l => !string.IsNullOrWhiteSpace(l)).ToArray();
             if (nonEmpty.Length <= 1)
                 throw new InvalidOperationException("CSV has no data rows (after header): " + filePath);
@@ -700,10 +566,8 @@ namespace WaveformPlotter
             var dataLines = nonEmpty.Skip(1).ToArray();
             int numRows = dataLines.Length;
 
-            // Ignore the first two columns (Timestamp, Raw Timestamp)
-            // Use minimum sample count (after skipping first 2) across all rows
+            // Ignore first 2 columns, use min sample count across rows
             int minSamples = int.MaxValue;
-
             foreach (string line in dataLines)
             {
                 string[] parts = line.Split(new[] { ',', ';', '\t' }, StringSplitOptions.None);
@@ -724,37 +588,36 @@ namespace WaveformPlotter
 
                 for (int c = 0; c < numSamples; c++)
                 {
-                    int idx = 2 + c; // skip first 2 columns (timestamps)
+                    int idx = 2 + c;
                     double val = 0.0;
                     if (idx < parts.Length)
                     {
                         string token = parts[idx].Trim();
                         if (!double.TryParse(token, NumberStyles.Float, CultureInfo.InvariantCulture, out val))
-                        {
                             val = 0.0;
-                        }
                     }
                     data[r, c] = val;
                 }
             }
 
-            string name = Path.GetFileNameWithoutExtension(filePath);
+            string rawName = Path.GetFileNameWithoutExtension(filePath);
+            string normName = NormalizeKey(rawName);
 
-            // Apply config if available, else defaults
+            // Find best config match (exact or partial) using normalized keys
+            string? bestKey = FindBestConfigKey(normName, cfgKeys);
+
+            // Defaults
             double bias = 0.0;
             double scale = 1.0;
             bool show1 = true;
             bool show2 = false;
 
-            var cfgEntry = _config.Channels.FirstOrDefault(c =>
-                string.Equals(c.Name, name, StringComparison.OrdinalIgnoreCase));
-
-            if (cfgEntry != null)
+            if (bestKey != null && _config.FileMap.TryGetValue(bestKey, out var map))
             {
-                bias = cfgEntry.Bias;
-                scale = cfgEntry.Scale;
-                show1 = cfgEntry.ShowOnChart1;
-                show2 = cfgEntry.ShowOnChart2;
+                bias = map.Bias;
+                scale = map.Scale;
+                show1 = map.ShowOnChart1;
+                show2 = map.ShowOnChart2;
             }
             else
             {
@@ -767,7 +630,8 @@ namespace WaveformPlotter
 
             return new ChannelData
             {
-                Name = name,
+                Name = rawName,
+                Key = normName,
                 Data = data,
                 Bias = bias,
                 Scale = scale,
@@ -777,30 +641,50 @@ namespace WaveformPlotter
         }
 
         // =========================
-        // Config handling
+        // Config handling (v2 map) + backward compat (v1 list)
         // =========================
-
         private void LoadConfigIfExists()
         {
-            if (!File.Exists(CONFIG_FILE_NAME))
+            _config = new AppConfig
             {
-                _config = new AppConfig
-                {
-                    SampleIntervalSec = DEFAULT_SAMPLE_INTERVAL_SEC
-                };
-                _txtSampleInterval.Text = DEFAULT_SAMPLE_INTERVAL_SEC.ToString("G6", CultureInfo.InvariantCulture);
+                SampleIntervalSec = DEFAULT_SAMPLE_INTERVAL_SEC
+            };
+            _txtSampleInterval.Text = DEFAULT_SAMPLE_INTERVAL_SEC.ToString("G6", CultureInfo.InvariantCulture);
+
+            if (!File.Exists(CONFIG_FILE_NAME))
                 return;
-            }
 
             try
             {
                 string json = File.ReadAllText(CONFIG_FILE_NAME);
-                var cfg = JsonSerializer.Deserialize<AppConfig>(json);
+                var cfg = JsonSerializer.Deserialize<AppConfig>(json, new JsonSerializerOptions
+                {
+                    PropertyNameCaseInsensitive = true
+                });
+
                 if (cfg != null)
                 {
                     _config = cfg;
+
+                    // Backward-compat: if old Channels[] exists, ingest into FileMap (normalized)
+                    if (_config.Channels != null && _config.Channels.Count > 0)
+                    {
+                        foreach (var old in _config.Channels)
+                        {
+                            var k = NormalizeKey(old.Name);
+                            _config.FileMap[k] = new ChannelConfigEntryV2
+                            {
+                                Bias = old.Bias,
+                                Scale = old.Scale,
+                                ShowOnChart1 = old.ShowOnChart1,
+                                ShowOnChart2 = old.ShowOnChart2
+                            };
+                        }
+                    }
+
                     if (_config.SampleIntervalSec > 0)
                         _sampleIntervalSec = _config.SampleIntervalSec;
+
                     _txtSampleInterval.Text = _sampleIntervalSec.ToString("G6", CultureInfo.InvariantCulture);
                 }
             }
@@ -808,6 +692,7 @@ namespace WaveformPlotter
             {
                 MessageBox.Show($"Failed to load config: {ex.Message}",
                     "Config Error", MessageBoxButtons.OK, MessageBoxIcon.Warning);
+
                 _config = new AppConfig
                 {
                     SampleIntervalSec = DEFAULT_SAMPLE_INTERVAL_SEC
@@ -829,19 +714,23 @@ namespace WaveformPlotter
             }
 
             _config.SampleIntervalSec = dt;
-            _config.Channels.Clear();
 
+            // Save mapping by normalized key (filename-derived)
+            _config.FileMap.Clear();
             foreach (var ch in _channels)
             {
-                _config.Channels.Add(new ChannelConfigEntry
+                string k = NormalizeKey(ch.Name);
+                _config.FileMap[k] = new ChannelConfigEntryV2
                 {
-                    Name = ch.Name,
                     Bias = ch.Bias,
                     Scale = ch.Scale,
                     ShowOnChart1 = ch.ShowOnChart1,
                     ShowOnChart2 = ch.ShowOnChart2
-                });
+                };
             }
+
+            // keep old list empty (we're now using FileMap)
+            _config.Channels = new List<ChannelConfigEntryV1>();
 
             string json = JsonSerializer.Serialize(_config, new JsonSerializerOptions
             {
@@ -852,15 +741,126 @@ namespace WaveformPlotter
             MessageBox.Show("Config saved.", "Config",
                 MessageBoxButtons.OK, MessageBoxIcon.Information);
         }
+
+        // =========================
+        // X-axis copy helper
+        // =========================
+        private void CopyXAxis(FormsPlot src, FormsPlot dst)
+        {
+            var srcBottom = src.Plot.Axes.Bottom;
+            var dstBottom = dst.Plot.Axes.Bottom;
+
+            if (Math.Abs(srcBottom.Min - dstBottom.Min) < 1e-9 &&
+                Math.Abs(srcBottom.Max - dstBottom.Max) < 1e-9)
+                return;
+
+            dstBottom.Min = srcBottom.Min;
+            dstBottom.Max = srcBottom.Max;
+            dst.Refresh();
+        }
+
+        // =========================
+        // Name normalization + partial match
+        // =========================
+
+        // Normalization: UPPERCASE, remove extension, replace non [A-Z0-9] with '_', collapse '_' runs, trim '_'
+        private static string NormalizeKey(string name)
+        {
+            if (string.IsNullOrWhiteSpace(name))
+                return string.Empty;
+
+            string s = name.Trim();
+
+            // If user accidentally passed full filename, remove extension
+            s = Path.GetFileNameWithoutExtension(s);
+
+            s = s.ToUpperInvariant();
+
+            // replace non-alnum with underscore
+            char[] chars = s.Select(ch => char.IsLetterOrDigit(ch) ? ch : '_').ToArray();
+            s = new string(chars);
+
+            // collapse multiple underscores
+            while (s.Contains("__"))
+                s = s.Replace("__", "_");
+
+            s = s.Trim('_');
+
+            return s;
+        }
+
+        // Find best matching config key for the current normalized filename
+        // Priority: exact > contains > token overlap score
+        private static string? FindBestConfigKey(string normName, List<string> cfgKeys)
+        {
+            if (string.IsNullOrWhiteSpace(normName) || cfgKeys == null || cfgKeys.Count == 0)
+                return null;
+
+            // Normalize config keys once (they should already be normalized, but be safe)
+            // We'll score using normalized forms
+            string? exact = cfgKeys.FirstOrDefault(k => string.Equals(k, normName, StringComparison.OrdinalIgnoreCase));
+            if (exact != null)
+                return exact;
+
+            // Contains match (either direction)
+            var contains = cfgKeys
+                .Select(k => new { Key = k, Score = ContainsScore(normName, k) })
+                .Where(x => x.Score > 0)
+                .OrderByDescending(x => x.Score)
+                .FirstOrDefault();
+
+            if (contains != null)
+                return contains.Key;
+
+            // Token overlap score
+            var tokensA = Tokenize(normName);
+            if (tokensA.Count == 0)
+                return null;
+
+            string? bestKey = null;
+            int bestScore = 0;
+
+            foreach (var k in cfgKeys)
+            {
+                var tokensB = Tokenize(k);
+                int score = tokensA.Intersect(tokensB).Count();
+                if (score > bestScore)
+                {
+                    bestScore = score;
+                    bestKey = k;
+                }
+            }
+
+            return bestScore > 0 ? bestKey : null;
+        }
+
+        private static int ContainsScore(string a, string b)
+        {
+            // Higher score = longer match
+            // If either contains the other, return the length of the shorter string as score
+            if (a.Contains(b, StringComparison.OrdinalIgnoreCase))
+                return b.Length;
+            if (b.Contains(a, StringComparison.OrdinalIgnoreCase))
+                return a.Length;
+            return 0;
+        }
+
+        private static HashSet<string> Tokenize(string s)
+        {
+            var tokens = s.Split(new[] { '_' }, StringSplitOptions.RemoveEmptyEntries)
+                          .Where(t => t.Length >= 2)
+                          .ToHashSet(StringComparer.OrdinalIgnoreCase);
+            return tokens;
+        }
     }
 
     // =========================
     // Helper classes
     // =========================
-
     public class ChannelData
     {
-        public string Name { get; set; } = string.Empty;
+        public string Name { get; set; } = string.Empty; // raw filename w/o extension
+        public string Key { get; set; } = string.Empty;  // normalized key for config matching
         public double[,] Data { get; set; } = new double[0, 0];
         public double Bias { get; set; }
         public double Scale { get; set; }
@@ -868,9 +868,19 @@ namespace WaveformPlotter
         public bool ShowOnChart2 { get; set; } = false;
     }
 
-    public class ChannelConfigEntry
+    // Old config shape (v1) - kept only for backward compatibility loading
+    public class ChannelConfigEntryV1
     {
         public string Name { get; set; } = string.Empty;
+        public double Bias { get; set; }
+        public double Scale { get; set; }
+        public bool ShowOnChart1 { get; set; } = true;
+        public bool ShowOnChart2 { get; set; } = false;
+    }
+
+    // New config shape (v2) - mapping by normalized filename key
+    public class ChannelConfigEntryV2
+    {
         public double Bias { get; set; }
         public double Scale { get; set; }
         public bool ShowOnChart1 { get; set; } = true;
@@ -879,7 +889,13 @@ namespace WaveformPlotter
 
     public class AppConfig
     {
-        public double SampleIntervalSec { get; set; }
-        public System.Collections.Generic.List<ChannelConfigEntry> Channels { get; set; } = new();
+        public double SampleIntervalSec { get; set; } = MainForm.DEFAULT_SAMPLE_INTERVAL_SEC;
+
+        // v2 preferred: mapping by normalized filename key
+        public Dictionary<string, ChannelConfigEntryV2> FileMap { get; set; }
+            = new Dictionary<string, ChannelConfigEntryV2>(StringComparer.OrdinalIgnoreCase);
+
+        // v1 legacy: list by name (we ingest this into FileMap on load, and write empty list on save)
+        public List<ChannelConfigEntryV1> Channels { get; set; } = new();
     }
 }

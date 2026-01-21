@@ -14,7 +14,7 @@ using System.Reflection;
 [assembly: System.Reflection.AssemblyCompanyAttribute("WaveformPlotter")]
 [assembly: System.Reflection.AssemblyConfigurationAttribute("Debug")]
 [assembly: System.Reflection.AssemblyFileVersionAttribute("1.0.3.0")]
-[assembly: System.Reflection.AssemblyInformationalVersionAttribute("1.0.0")]
+[assembly: System.Reflection.AssemblyInformationalVersionAttribute("1.0.0+0ef8bf29e302b1dbf5b38bff21f9623b2dfc4d7f")]
 [assembly: System.Reflection.AssemblyProductAttribute("WaveformPlotter")]
 [assembly: System.Reflection.AssemblyTitleAttribute("WaveformPlotter")]
 [assembly: System.Reflection.AssemblyVersionAttribute("1.0.3.0")]

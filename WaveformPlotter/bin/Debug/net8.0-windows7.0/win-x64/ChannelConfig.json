@@ -1,0 +1,78 @@
+{
+  "SampleIntervalSec": 0.001,
+  "FileMap": {
+    "FORWARD_ARRAY_PHSB_CURRENT": {
+      "Bias": -744,
+      "Scale": 0.006105,
+      "ShowOnChart1": false,
+      "ShowOnChart2": true
+    },
+    "BACKWARD_ARRAY_HV_BUS_VOLTAGE": {
+      "Bias": 1,
+      "Scale": 0.02,
+      "ShowOnChart1": true,
+      "ShowOnChart2": false
+    },
+    "BACKWARD_ARRAY_PHSA_CURRENT": {
+      "Bias": -744,
+      "Scale": 0.006105,
+      "ShowOnChart1": false,
+      "ShowOnChart2": true
+    },
+    "BACKWARD_ARRAY_PHSA_VOLTAGE": {
+      "Bias": 1,
+      "Scale": 0.02,
+      "ShowOnChart1": true,
+      "ShowOnChart2": false
+    },
+    "BACKWARD_ARRAY_PHSB_CURRENT": {
+      "Bias": -744,
+      "Scale": 0.006105,
+      "ShowOnChart1": false,
+      "ShowOnChart2": true
+    },
+    "BACKWARD_ARRAY_PHSB_VOLTAGE": {
+      "Bias": 1,
+      "Scale": 0.02,
+      "ShowOnChart1": true,
+      "ShowOnChart2": false
+    },
+    "BACKWARD_ARRAY_PHSC_VOLTAGE": {
+      "Bias": 1,
+      "Scale": 0.02,
+      "ShowOnChart1": true,
+      "ShowOnChart2": false
+    },
+    "FORWARD_ARRAY_HV_BUS_VOLTAGE": {
+      "Bias": 1,
+      "Scale": 0.02,
+      "ShowOnChart1": true,
+      "ShowOnChart2": false
+    },
+    "FORWARD_ARRAY_PHSA_CURRENT": {
+      "Bias": -744,
+      "Scale": 0.006105,
+      "ShowOnChart1": false,
+      "ShowOnChart2": true
+    },
+    "FORWARD_ARRAY_PHSA_VOLTAGE": {
+      "Bias": 1,
+      "Scale": 0.02,
+      "ShowOnChart1": true,
+      "ShowOnChart2": false
+    },
+    "FORWARD_ARRAY_PHSB_VOLTAGE": {
+      "Bias": 1,
+      "Scale": 0.02,
+      "ShowOnChart1": true,
+      "ShowOnChart2": false
+    },
+    "FORWARD_ARRAY_PHSC_VOLTAGE": {
+      "Bias": 1,
+      "Scale": 0.02,
+      "ShowOnChart1": true,
+      "ShowOnChart2": false
+    }
+  },
+  "Channels": []
+}
